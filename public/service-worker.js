@@ -36,6 +36,8 @@ self.addEventListener("install", function(evt) {
             }
           })
         );
+      }).catch(err => {
+        console.log("error: ", err);
       })
     );
   
