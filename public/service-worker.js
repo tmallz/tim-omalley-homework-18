@@ -54,7 +54,7 @@ self.addEventListener("install", function(evt) {
 
     if (evt.request.url.includes("/api/transaction")) {
       evt.respondWith(
-        caches.open(RUNTIME_CACHE).then(cache => {
+        caches.open(DATA_CACHE_NAME).then(cache => {
           return fetch(evt.request)
             .then(response => {
               cache.put(evt.request, response.clone());
@@ -72,7 +72,7 @@ self.addEventListener("install", function(evt) {
           return cachedResponse;
         }
 
-        return caches.open(RUNTIME_CACHE).then(cache => {
+        return caches.open(DATA_CACHE_NAME).then(cache => {
           return fetch(evt.request).then(response => {
             return cache.put(evt.request, response.clone()).then(() => {
               return response;
