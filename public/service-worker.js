@@ -6,6 +6,8 @@ const FILES_TO_CACHE = [
     "/styles.css",
     "/icons/icon-192x192.png",
     "/icons/icon-512x512.png",
+    "/manifest.webmanifest",
+    "/indexedDB.js"
 ];
 
 const CACHE_NAME = "static-cache-v2";
@@ -42,6 +44,11 @@ self.addEventListener("install", function(evt) {
   
   // fetch
   self.addEventListener("fetch", function(evt) {
+    if (evt.request.method != "GET" || !evt.request.url.startsWith(self.location.origin)){
+      evt.respondWith(fetch(evt.request));
+      return;
+    }
+
     if (evt.request.url.includes("/api/transaction")) {
       evt.respondWith(
         caches.open(DATA_CACHE_NAME).then(cache => {
