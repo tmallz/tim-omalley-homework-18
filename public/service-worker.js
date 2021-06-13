@@ -1,3 +1,5 @@
+const { response } = require("express");
+
 //cache all files in public folder
 const FILES_TO_CACHE = [
     "/",
@@ -52,29 +54,57 @@ self.addEventListener("install", function(evt) {
 
     if (evt.request.url.includes("/api/transaction")) {
       evt.respondWith(
-        caches.open(DATA_CACHE_NAME).then(cache => {
+        caches.open(RUNTIME_CACHE).then(cache => {
           return fetch(evt.request)
             .then(response => {
-              if (response.status === 200) {
-                cache.put(evt.request.url, response.clone());
-              }
-  
+              cache.put(evt.request, response.clone());
               return response;
             })
-            .catch(err => {
-              return cache.match(evt.request);
-            });
-        }).catch(err => console.log(err))
+            .catch(() => caches.match(evt.request));
+        })
       );
-  
       return;
     }
 
     evt.respondWith(
-      caches.match(evt.request).then(function(response) {
-        return response || fetch(evt.request);
+      caches.match(evt.request).then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        return caches.open(RUNTIME_CACHE).then(cache => {
+          return fetch(evt.request).then(response => {
+            return cache.put(evt.request, response.clone()).then(() => {
+              return response;
+            });
+          });
+        });
       })
     );
   });
   
-  
+  // if (evt.request.url.includes("/api/transaction")) {
+  //   evt.respondWith(
+  //     caches.open(DATA_CACHE_NAME).then(cache => {
+  //       return fetch(evt.request)
+  //         .then(response => {
+  //           if (response.status === 200) {
+  //             cache.put(evt.request.url, response.clone());
+  //           }
+
+  //           return response;
+  //         })
+  //         .catch(err => {
+  //           return cache.match(evt.request);
+  //         });
+  //     }).catch(err => console.log(err))
+  //   );
+
+  //   return;
+  // }
+
+  // evt.respondWith(
+  //   caches.match(evt.request).then(function(response) {
+  //     return response || fetch(evt.request);
+  //   })
+  // );
