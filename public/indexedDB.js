@@ -2,7 +2,7 @@ const request = window.indexedDB.open("Budget", 1);
 let db;
 
 request.onupgradeneeded = function(event){
-    const db = request.result;
+    db = request.result;
     db.createObjectStore("pending", {autoIncrement: true});
 }
 
